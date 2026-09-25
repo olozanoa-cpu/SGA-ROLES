@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario para Definición de Roles: Sistemas SGA</title>
+    <!-- Tailwind CSS para el diseño -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2pdf.js para exportar a PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        /* Estilos personalizados para inputs y tablas */
+        input[type="text"] {
+            border: none;
+            border-bottom: 1px solid #9ca3af;
+            background-color: transparent;
+            outline: none;
+            width: 100%;
+            padding: 2px 5px;
+        }
+        input[type="text"]:focus {
+            border-bottom: 2px solid #3b82f6;
+        }
+        .table-row-hover:hover {
+            background-color: #f9fafb;
+        }
+        /* Ocultar elementos al imprimir/generar PDF */
+        .no-print {
+            display: block;
+        }
+
+        /* Reglas cruciales para evitar páginas en blanco y cortes extraños en PDF */
+        section, table, tr, .evita-corte {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        /* Clase temporal que se aplica solo durante la generación del PDF */
+        .pdf-mode {
+            margin: 0 !important;
+            max-width: 100% !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+        /* Desactiva el scroll horizontal de tablas al imprimir, principal causante de errores de renderizado */
+        .pdf-mode .overflow-x-auto {
+            overflow-x: visible !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans p-4 md:p-8">
+
+    <!-- Contenedor principal (lo que se convertirá en PDF) -->
+    <div id="document-content" class="max-w-4xl mx-auto bg-white p-8 md:p-12 shadow-lg rounded-lg">
+        
+        <header class="border-b-2 border-blue-600 pb-4 mb-6">
+            <h1 class="text-3xl font-bold text-blue-800 mb-2">Cuestionario para Definición de Roles: Líder de Seguimiento y Consulta Ejecutiva</h1>
+            <p class="text-sm text-gray-500">Proyecto SGA - Sistema de Gestión de PACs</p>
+        </header>
+
+        <!-- Introducción -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Introducción</h2>
+            <p class="mb-4">Este documento tiene como objetivo recopilar sus decisiones sobre qué puede hacer cada rol en el sistema de gestión de PACs (Planes de Acción Correctiva). Sus respuestas nos permitirán configurar correctamente los permisos y vistas para cada tipo de usuario.</p>
+            <p class="font-semibold bg-blue-50 p-3 border-l-4 border-blue-500 text-blue-800 rounded">Instrucciones: Lea la descripción de cada rol, luego responda las preguntas marcando la opción que corresponda o escribiendo su respuesta en los espacios indicados.</p>
+        </section>
+
+        <!-- 1. Descripción de Roles -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">1. Descripción de Roles en Lenguaje Sencillo</h2>
+            
+            <div class="space-y-6">
+                <div class="evita-corte">
+                    <h3 class="text-xl font-bold flex items-center gap-2">🔐 Administrador (Control total)</h3>
+                    <ul class="list-disc pl-6 mt-2 space-y-1">
+                        <li><strong>Qué ve:</strong> Todo el sistema, todas las áreas, todos los PACs, acciones, hallazgos y evidencias.</li>
+                        <li><strong>Qué hace:</strong> Crea, edita y elimina todo. Gestiona usuarios y asigna roles. Aprueba/rechaza acciones y evidencias. Es el único que puede cambiar el porcentaje de avance de las acciones.</li>
+                        <li><strong>Dashboard:</strong> Vista global completa con todos los indicadores.</li>
+                    </ul>
+                </div>
+
+                <div class="evita-corte">
+                    <h3 class="text-xl font-bold flex items-center gap-2">👁️ Consulta Ejecutiva (Solo lectura - Vista directiva)</h3>
+                    <ul class="list-disc pl-6 mt-2 space-y-1">
+                        <li><strong>Qué ve:</strong> Lo mismo que el Administrador (todo el sistema), pero <strong>solo para consultar</strong>.</li>
+                        <li><strong>Qué hace:</strong> <strong>Nada de edición.</strong> Solo ve dashboards, reportes e indicadores consolidados de todas las áreas. Es un rol puramente de "mirar" para toma de decisiones directivas.</li>
+                        <li><strong>Dashboard:</strong> Vista concentrada/ejecutiva con KPIs globales (igual que admin pero sin botones de acción).</li>
+                    </ul>
+                </div>
+
+                <div class="evita-corte">
+                    <h3 class="text-xl font-bold flex items-center gap-2">📋 Líder de Seguimiento (Monitoreo de su área/departamento)</h3>
+                    <ul class="list-disc pl-6 mt-2 space-y-1">
+                        <li><strong>Qué ve:</strong> Solo los PACs, hallazgos y acciones que pertenecen a <strong>sus departamentos asignados</strong> (donde es líder o área responsable).</li>
+                        <li><strong>Qué hace:</strong> <strong>Solo lectura/consulta.</strong> Monitorea el avance de los PACs de su área. Ve listas y detalles pero no puede crear, editar ni aprobar nada.</li>
+                        <li><strong>Dashboard:</strong> Vista filtrada solo de sus departamentos con indicadores de seguimiento.</li>
+                    </ul>
+                </div>
+
+                <div class="evita-corte">
+                    <h3 class="text-xl font-bold flex items-center gap-2">✏️ Responsable de PAC (Ejecución - Quien responde por el PAC)</h3>
+                    <ul class="list-disc pl-6 mt-2 space-y-1">
+                        <li><strong>Qué ve:</strong> Solo los PACs donde <strong>él/ella está asignado</strong> como responsable del PAC o líder del PAC, y las acciones donde es responsable directo.</li>
+                        <li><strong>Qué hace:</strong> Edita la información de sus PACs, crea y edita acciones, sube evidencias, re-propone acciones rechazadas.</li>
+                        <li><strong>NO puede:</strong> Aprobar/rechazar acciones propias, cambiar porcentaje de avance, validar evidencias.</li>
+                        <li><strong>Dashboard:</strong> Vista de sus PACs y acciones asignadas con sus tareas pendientes.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. El Conflicto Importante -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">2. El Conflicto Importante: Usuario con Doble Rol</h2>
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
+                <p><strong>⚠️ SITUACIÓN REAL:</strong> Una misma persona puede ser <strong>Líder de Seguimiento</strong> de su departamento <strong>Y Responsable de PAC</strong> de algunos PACs específicos.</p>
+                <p class="text-sm mt-2"><strong>El problema actual:</strong> Si el sistema detecta primero que es "Líder de Seguimiento", solo le muestra los PACs de su departamento y oculta los PACs donde es Responsable (aunque le correspondan).</p>
+            </div>
+            
+            <h3 class="font-bold mb-2">Preguntas Clave (Responda estas PRIMERO)</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="border border-gray-300 p-2 w-12 text-center">#</th>
+                            <th class="border border-gray-300 p-2 text-left">Pregunta</th>
+                            <th class="border border-gray-300 p-2 w-1/2 text-left">Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-row-hover">
+                            <td class="border border-gray-300 p-2 text-center font-bold">1.1</td>
+                            <td class="border border-gray-300 p-2">Si un usuario es <strong>Líder de Seguimiento Y Responsable de PAC</strong> al mismo tiempo, ¿qué PACs debe ver?</td>
+                            <td class="border border-gray-300 p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Todos</strong>: Los de su departamento (como Líder) <strong>MÁS</strong> los suyos propios (como Responsable) — <em>Recomendado</em></span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span>Solo los de su departamento (como Líder)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span>Solo los suyos propios (como Responsable)</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text" placeholder="Especifique..."></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover">
+                            <td class="border border-gray-300 p-2 text-center font-bold">1.2</td>
+                            <td class="border border-gray-300 p-2">En el dashboard, si ve ambos tipos de PACs, ¿cómo quiere distinguirlos?</td>
+                            <td class="border border-gray-300 p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span>Con una <strong>etiqueta/badge</strong> que diga "Mi responsabilidad" vs "Monitoreo"</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span>En <strong>pestañas separadas</strong>: "Mis PACs" / "PACs de mi área"</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span>Con un <strong>filtro</strong> para cambiar entre vistas</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span>No hace falta distinguir, que se vean todos juntos</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text" placeholder="Especifique..."></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover">
+                            <td class="border border-gray-300 p-2 text-center font-bold">1.3</td>
+                            <td class="border border-gray-300 p-2">Si es Líder de Seguimiento de un departamento PERO NO es Responsable de un PAC de ese departamento, ¿puede <strong>editar</strong> ese PAC?</td>
+                            <td class="border border-gray-300 p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No</strong> — Como Líder solo monitorea (solo lectura)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí</strong> — Porque tiene el rol de Responsable de PAC en el sistema</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo si</strong> además está asignado como "Responsable Líder" de ese PAC específico</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text" placeholder="Especifique..."></label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 3. Consulta Ejecutiva -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">3. Consulta Ejecutiva - Dashboard y Funciones</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="border border-gray-300 p-2 w-12 text-center">#</th>
+                            <th class="border border-gray-300 p-2 text-left">Pregunta</th>
+                            <th class="border border-gray-300 p-2 w-1/2 text-left">Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-row-hover">
+                            <td class="border border-gray-300 p-2 text-center font-bold">2.1</td>
+                            <td class="border border-gray-300 p-2">El dashboard de Consulta Ejecutiva, ¿debe ser <strong>igual</strong> al del Administrador?</td>
+                            <td class="border border-gray-300 p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí, idéntico</strong> (mismos gráficos, listas, sin botones de editar)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No, versión simplificada</strong> — Solo KPIs principales, sin listas</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo KPIs agregados</strong> — Números totales, sin detalle individual</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover">
+                            <td class="border border-gray-300 p-2 text-center font-bold">2.2</td>
+                            <td class="border border-gray-300 p-2">¿Necesita la Consulta Ejecutiva <strong>filtros</strong> para acotar lo que ve?</td>
+                            <td class="border border-gray-300 p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí, filtros completos</strong> (por área, estatus, año, tipo, etc.)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo filtros generales</strong> (área, año)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sin filtros</strong> — Vista fija predefinida</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover">
+                            <td class="border border-gray-300 p-2 text-center font-bold">2.3</td>
+                            <td class="border border-gray-300 p-2">¿Debe poder <strong>exportar reportes</strong> (PDF/Excel) desde su dashboard?</td>
+                            <td class="border border-gray-300 p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí, exportar a PDF</strong> (reporte ejecutivo)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí, exportar a Excel</strong> (datos crudos)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Ambos</strong> (PDF y Excel)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No</strong> — Solo visualización en pantalla</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover">
+                            <td class="border border-gray-300 p-2 text-center font-bold">2.4</td>
+                            <td class="border border-gray-300 p-2">¿Puede hacer <strong>clic para ver el detalle</strong> de un PAC/acción/evidencia (solo lectura)?</td>
+                            <td class="border border-gray-300 p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí, drill-down completo</strong> — Entra a ver todo el detalle</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo KPIs y resúmenes</strong> — No entra al detalle individual</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Drill-down pero SIN evidencias</strong> — No ve archivos adjuntos</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 4. Líder de Seguimiento -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">4. Líder de Seguimiento - Funciones Adicionales</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300">
+                    <tbody>
+                        <tr class="table-row-hover border-b border-gray-300">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">3.1</td>
+                            <td class="border-r border-gray-300 p-2">¿Puede el Líder de Seguimiento <strong>crear nuevos PACs</strong> para sus departamentos?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No</strong> — Solo Administrador crea PACs</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí</strong> — Puede crear PACs en sus áreas asignadas</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo planifica</strong> pero Administrador confirma/crea</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover border-b border-gray-300">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">3.2</td>
+                            <td class="border-r border-gray-300 p-2">¿Puede <strong>asignar responsables</strong> en los PACs de su departamento?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No</strong> — Solo Administrador asigna</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí</strong> — Elige quién es responsable</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo sugiere</strong> — Propone nombres, Admin confirma</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover border-b border-gray-300">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">3.3</td>
+                            <td class="border-r border-gray-300 p-2">¿Recibe <strong>notificaciones/alertas</strong> automáticas?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí, todas</strong> (nuevos, vencimientos, evidencias, estatus)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo alertas críticas</strong> (PACs/acciones vencidos)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No</strong> — Solo entra al sistema cuando quiere</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">3.4</td>
+                            <td class="border-r border-gray-300 p-2">¿Puede <strong>comentar</strong> en acciones, hallazgos o evidencias de su departamento?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí</strong> — Puede dejar comentarios/observaciones</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No</strong> — Solo ve, no interactúa</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo en hallazgos</strong> — Comenta hallazgos pero no acciones</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 5. Evidencias y Validación -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">5. Evidencias y Validación</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300">
+                    <tbody>
+                        <tr class="table-row-hover border-b border-gray-300">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">4.1</td>
+                            <td class="border-r border-gray-300 p-2">¿Puede el Líder de Seguimiento <strong>subir evidencias</strong> a acciones de su departamento?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No</strong> — Solo el Responsable de PAC sube evidencias</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí</strong> — Puede subir a cualquier acción de su área</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo si</strong> también es Responsable de esa acción</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover border-b border-gray-300">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">4.2</td>
+                            <td class="border-r border-gray-300 p-2">La Consulta Ejecutiva, ¿ve las evidencias (archivos) o solo su <strong>estado</strong>?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Ve todo</strong> — Puede abrir/ver las evidencias</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo estados</strong> — Ve cuántas hay (pendientes, aprobadas...)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No ve evidencias</strong> — Solo KPIs de PACs</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">4.3</td>
+                            <td class="border-r border-gray-300 p-2">¿Quién puede <strong>descargar</strong> los archivos de evidencias?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo</strong>: Quien subió + Administrador + Responsable PAC</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>También</strong>: Líder de Seguimiento del departamento</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>También</strong>: Consulta Ejecutiva</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Todos</strong> los que tienen acceso al PAC/acción</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 6. Hallazgos -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">6. Hallazgos</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300">
+                    <tbody>
+                        <tr class="table-row-hover border-b border-gray-300">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">5.1</td>
+                            <td class="border-r border-gray-300 p-2">El Líder de Seguimiento, ¿ve los <strong>hallazgos</strong> de los PACs de su departamento?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí</strong> (implícito — si ve el PAC ve sus hallazgos)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Necesita permiso explícito</strong> para ver hallazgos</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No</strong> — No ve hallazgos</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">5.2</td>
+                            <td class="border-r border-gray-300 p-2">¿Puede <strong>crear o editar hallazgos</strong> en PACs de su departamento?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No</strong> — Solo Administrador / Responsable de PAC</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí</strong> — Crea y edita hallazgos en su área</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo crea</strong> — Puede agregar nuevos, no editar</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 7. Usuarios y Roles -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">7. Usuarios y Roles (Administración)</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300">
+                    <tbody>
+                        <tr class="table-row-hover border-b border-gray-300">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">6.1</td>
+                            <td class="border-r border-gray-300 p-2">¿Puede el Líder de Seguimiento <strong>ver la lista de usuarios</strong> de su departamento?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No</strong> — Solo Administrador ve usuarios</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí, solo lectura</strong> — Ve nombres y roles de su área</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo nombres</strong> — Sin ver roles ni editar</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">6.2</td>
+                            <td class="border-r border-gray-300 p-2">La Consulta Ejecutiva, ¿ve la <strong>matriz de roles/usuarios</strong> del sistema?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No</strong> — No accede a administración de usuarios</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí, solo lectura</strong> — Ve quién tiene qué rol</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo métricas</strong> — Cuántos usuarios por rol (números)</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 8. Reportes y Exportación -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">8. Reportes y Exportación</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300">
+                    <tbody>
+                        <tr class="table-row-hover border-b border-gray-300">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">7.1</td>
+                            <td class="border-r border-gray-300 p-2">¿Qué <strong>reportes</strong> necesita la Consulta Ejecutiva?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Ejecutivo consolidado</strong> (PDF con resumen general)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Por área/departamento</strong> (desglose)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Tendencias/Trazabilidad</strong> (evolución en el tiempo)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Personalizado</strong> (filtros a elección)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Todos los anteriores</strong></span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">7.2</td>
+                            <td class="border-r border-gray-300 p-2">El Líder de Seguimiento, ¿genera <strong>reportes de seguimiento</strong> de su departamento?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí</strong> — Tiene botón "Generar reporte de mi área"</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No</strong> — Solo ve los que genera Administrador</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo ve</strong> — Accede a reportes generados por Admin</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 9. Casos Especiales -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">9. Casos Especiales y Reglas Generales</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300">
+                    <tbody>
+                        <tr class="table-row-hover border-b border-gray-300">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">8.1</td>
+                            <td class="border-r border-gray-300 p-2">¿Un usuario puede tener <strong>3 o más roles</strong> al mismo tiempo?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí</strong> — Sin límite</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Máximo 2 roles</strong> simultáneos</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo 1 rol</strong> a la vez</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover border-b border-gray-300">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">8.2</td>
+                            <td class="border-r border-gray-300 p-2">Cuando le cambian el rol a un usuario, ¿el cambio es <strong>inmediato</strong>?</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí, inmediato</strong> — Al recargar ya tiene nuevos permisos</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Requiere volver a entrar</strong> (logout/login)</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Tiempo de espera</strong> (ej. 5-10 min por caché)</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                        <tr class="table-row-hover">
+                            <td class="border-r border-gray-300 p-2 w-12 text-center font-bold">8.3</td>
+                            <td class="border-r border-gray-300 p-2">¿Existe <strong>jerarquía</strong> entre roles? (ej. Admin > Líder > Responsable)</td>
+                            <td class="p-2 space-y-2">
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Sí, herencia</strong> — Admin hereda permisos de todos...</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>No, independientes</strong> — Sin herencia</span></label>
+                                <label class="flex items-start gap-2"><input type="checkbox" class="mt-1"> <span><strong>Solo para visibilidad</strong> — Define qué ve, no qué hace</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox"> <span class="whitespace-nowrap">Otro:</span> <input type="text"></label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 10. Comentarios Adicionales -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">10. Espacio para Comentarios Adicionales</h2>
+            <p class="text-sm text-gray-600 mb-2">Use este espacio para cualquier aclaración, caso especial no contemplado, o regla de negocio específica de su organización:</p>
+            <textarea class="w-full border border-gray-400 rounded p-3 focus:outline-none focus:border-blue-500 min-h-[150px]" placeholder="Escriba sus comentarios aquí..."></textarea>
+        </section>
+
+        <!-- Resumen y Firmas -->
+        <section class="mb-8 bg-gray-50 p-6 rounded border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Resumen Rápido de Decisiones Críticas</h2>
+            <table class="w-full mb-6">
+                <tbody>
+                    <tr class="border-b border-gray-300">
+                        <td class="py-2 font-semibold w-1/2">Doble rol (Líder + Responsable): ¿Ve ambos conjuntos de PACs?</td>
+                        <td class="py-2 flex gap-4 flex-wrap">
+                            <label><input type="checkbox"> Sí (unión)</label>
+                            <label><input type="checkbox"> Solo Líder</label>
+                            <label><input type="checkbox"> Solo Resp.</label>
+                            <label class="flex gap-1"><input type="checkbox"> Otro: <input type="text" class="w-20"></label>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-300">
+                        <td class="py-2 font-semibold">Dashboard Consulta Ejecutiva: ¿Igual a Admin o simplificado?</td>
+                        <td class="py-2 flex gap-4 flex-wrap">
+                            <label><input type="checkbox"> Igual</label>
+                            <label><input type="checkbox"> Simplificado</label>
+                            <label><input type="checkbox"> Solo KPIs</label>
+                            <label class="flex gap-1"><input type="checkbox"> Otro: <input type="text" class="w-20"></label>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-300">
+                        <td class="py-2 font-semibold">Líder de Seguimiento: ¿Crea PACs?</td>
+                        <td class="py-2 flex gap-4 flex-wrap">
+                            <label><input type="checkbox"> No</label>
+                            <label><input type="checkbox"> Sí</label>
+                            <label><input type="checkbox"> Solo planifica</label>
+                            <label class="flex gap-1"><input type="checkbox"> Otro: <input type="text" class="w-20"></label>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-300">
+                        <td class="py-2 font-semibold">Líder de Seguimiento: ¿Sube evidencias?</td>
+                        <td class="py-2 flex gap-4 flex-wrap">
+                            <label><input type="checkbox"> No</label>
+                            <label><input type="checkbox"> Sí</label>
+                            <label><input type="checkbox"> Solo si es Resp.</label>
+                            <label class="flex gap-1"><input type="checkbox"> Otro: <input type="text" class="w-20"></label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-2 font-semibold">Consulta Ejecutiva: ¿Exporta reportes?</td>
+                        <td class="py-2 flex gap-4 flex-wrap">
+                            <label><input type="checkbox"> PDF</label>
+                            <label><input type="checkbox"> Excel</label>
+                            <label><input type="checkbox"> Ambos</label>
+                            <label><input type="checkbox"> No</label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Fecha:</label>
+                    <input type="text" placeholder="DD/MM/AAAA" class="mt-1">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Respondido por:</label>
+                    <input type="text" placeholder="Nombre completo" class="mt-1">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700">Cargo:</label>
+                    <input type="text" placeholder="Título/Puesto" class="mt-1">
+                </div>
+            </div>
+            <p class="text-center text-sm text-gray-500 mt-8">¡Gracias por su tiempo!</p>
+        </section>
+
+    </div>
+
+    <!-- Botón para generar PDF (Oculto al imprimir/generar) -->
+    <div id="pdf-actions" class="text-center mt-8 mb-12 no-print">
+        <button onclick="generarPDF()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 transform hover:scale-105 flex items-center justify-center gap-2 mx-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Convertir y Descargar a PDF
+        </button>
+        <p class="text-sm text-gray-500 mt-3">Rellene el formulario y presione este botón para guardar sus respuestas.</p>
+    </div>
+
+    <!-- Script para la funcionalidad de PDF -->
+    <script>
+        function generarPDF() {
+            // 1. Ocultar el botón
+            const btnContainer = document.getElementById('pdf-actions');
+            btnContainer.style.display = 'none';
+
+            // 2. FORZAR el scroll a la parte superior de la página (esto evita páginas blancas superiores)
+            window.scrollTo(0, 0);
+
+            // 3. Preparar el contenedor (quitando márgenes centrados temporalmente)
+            const elemento = document.getElementById('document-content');
+            elemento.classList.add('pdf-mode');
+
+            // 4. Configuración del PDF
+            const opciones = {
+                margin:       [10, 10, 10, 10], // Margen [top, left, bottom, right] en mm
+                filename:     'Respuestas_Roles_SGA.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true,
+                    scrollY: 0, // Forzar que html2canvas inicie en Y=0
+                    windowWidth: document.documentElement.offsetWidth // Prevenir comportamientos raros del viewport
+                },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'legacy'] } // Respetar las reglas de CSS de "page-break-inside: avoid"
+            };
+
+            // 5. Generar, descargar y restaurar estilos
+            html2pdf().set(opciones).from(elemento).save().then(() => {
+                // Restaurar la vista normal
+                elemento.classList.remove('pdf-mode');
+                btnContainer.style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>
